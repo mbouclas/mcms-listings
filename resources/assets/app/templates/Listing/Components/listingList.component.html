@@ -1,0 +1,104 @@
+<md-progress-circular md-mode="indeterminate" ng-if="VM.Loading"></md-progress-circular>
+<md-list flex>
+    <md-list-item ng-repeat="item in VM.Items" ng-click="VM.showActions($event, item)"
+                  class="md-3-line">
+        <div class="md-list-item-text" layout="column">
+            <h3><strong>#{{ item.id }} {{ item.title[VM.defaultLang] }}</strong></h3>
+            <h4>
+                <label class="label label-success" ng-if="item.active">Active</label>
+                <label class="label label-error" ng-if="!item.active">Disabled</label>
+                <span ng-repeat="cat in item.categories">
+                    <span ng-bind="cat.title[VM.defaultLang]"></span>
+                    <span ng-if="!$last">,</span>
+                </span></h4>
+            <p>{{ item.created_at | moment }}</p>
+        </div>
+        <md-divider ng-if="!$last"></md-divider>
+    </md-list-item>
+</md-list>
+
+<paginator
+        md-limit="VM.Pagination.per_page"
+        md-page="VM.Pagination.current_page"
+        md-total="{{VM.Pagination.total}}"
+        md-page-select="false"
+        md-boundary-links="true"
+        mdOptions="false"
+        md-on-paginate="VM.changePage">
+</paginator>
+</md-card>
+
+<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="filters">
+
+    <md-toolbar class="md-theme-light">
+        <h1 class="md-toolbar-tools">Filter results</h1>
+    </md-toolbar>
+    <md-content layout-padding="">
+        <form method="post" novalidate ng-submit="VM.applyFilters()">
+            <md-input-container class="md-block">
+                <label for="id">#ID</label>
+                <input type="text" id="id" ng-model="VM.filters.id" md-autofocus="">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label for="key">Title</label>
+                <input type="text" id="key" ng-model="VM.filters.title">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label for="key">Permalink</label>
+                <input type="text" id="slug" ng-model="VM.filters.slug">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Description</label>
+                <input type="text" ng-model="VM.filters.description">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Long Description</label>
+                <input type="text" ng-model="VM.filters.description_long">
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Status</label>
+                <md-select ng-model="VM.filters.active">
+                    <md-option ng-repeat="state in VM.boolValues" value="{{state.value}}">
+                        {{state.label}}
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Date mode</label>
+                <md-select ng-model="VM.filters.dateMode">
+                    <md-option value="created_at">Created</md-option>
+                    <md-option value="update_at">Updated</md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-input-container class="md-block">
+                <label>Category</label>
+                <md-select ng-model="VM.filters.category_id" aria-label="Category">
+                    <md-option value="">
+                        Any
+                    </md-option>
+                    <md-option ng-repeat="category in VM.Categories" value="{{category.id}}">
+                        <span ng-bind-html="category.label"></span>
+                    </md-option>
+                </md-select>
+            </md-input-container>
+
+            <md-datepicker ng-model="VM.filters.dateStart"
+                           md-placeholder="From date"></md-datepicker>
+
+            <md-datepicker ng-model="VM.filters.dateEnd"
+                           md-placeholder="To date"></md-datepicker>
+
+            <md-button type="submit" class="md-primary md-raised">
+                Filter
+            </md-button>
+        </form>
+    </md-content>
+
+</md-sidenav>

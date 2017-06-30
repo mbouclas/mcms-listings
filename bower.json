@@ -1,0 +1,12 @@
+{
+  "name": "eastpak.com.cy",
+  "version": "0.0.1",
+  "description": "eastpak",
+  "license": "MIT",
+  "dependencies": {
+    "angular-reverse-url": "~2.4.0",
+    "angular-dropzone": "~0.1.2",
+    "angular-redactor": "~1.1.6",
+    "Materialize": "materialize#~0.97.6"
+  }
+}

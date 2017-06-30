@@ -1,0 +1,21 @@
+<md-card class="md-whitespace-4dp">
+    <md-toolbar class="md-table-toolbar md-default">
+        <div class="md-toolbar-tools">
+            <h2 class="md-title">Latest products</h2>
+            <div flex=""></div>
+
+
+            <md-button class="md-fab md-hue-2 md-accent" aria-label="Add"
+                       ng-href="{{ 'products-edit' | url : {id : 'new'} }}">
+                <md-icon class="material-icons">add</md-icon>
+                <md-tooltip md-direction="top">
+                    Create new
+                </md-tooltip>
+            </md-button>
+        </div>
+
+    </md-toolbar>
+
+    <product-list items="Items" categories="Categories" options="Options"></product-list>
+
+    </md-card>

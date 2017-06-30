@@ -1,0 +1,46 @@
+<md-toolbar class="md-table-toolbar md-default">
+    <div class="md-toolbar-tools">
+        <h2 class="md-title">{{ VM.Item.title[VM.defaultLang] || 'Create Product'}}</h2>
+        <div flex></div>
+<!--        <md-button class="md-fab md-hue-2 md-accent" aria-label="preview"
+                   ng-if="VM.Item.id && VM.previewAvailable"
+                   hide-sm hide-xs
+                   ng-click="VM.preview()">
+            <md-icon class="material-icons">remove_red_eye</md-icon>
+            <md-tooltip md-direction="top">
+                Live preview
+            </md-tooltip>
+        </md-button>-->
+        <a ng-href="{{ VM.previewSrc }}" target="_blank" style="display:none;" id="previewLink">preview</a>
+        <md-button class="md-fab md-hue-2 md-accent" aria-label="open in new"
+                   ng-click="VM.openInNewTab()">
+            <md-icon class="material-icons">open_in_new</md-icon>
+            <md-tooltip md-direction="top">
+                Open in new tab
+            </md-tooltip>
+        </md-button>
+        <md-button class="md-fab md-hue-2 md-accent" aria-label="Add"
+                   ng-href="{{ 'products-edit' | url:{id:'new'} }}"  hide-xs>
+            <md-icon class="material-icons">add</md-icon>
+            <md-tooltip md-direction="top">
+                Add new
+            </md-tooltip>
+        </md-button>
+    </div>
+
+</md-toolbar>
+
+<div layout="{{ layout || 'column' }}">
+    <div ng-class="{'flex-40':preview}">
+        <edit-product item="VM.Item" on-save="VM.onSave(item, isNew)"></edit-product>
+    </div>
+    <div class="flex-60" ng-if="preview">
+        <div flex style="position: relative; height: 100%;">
+            <iframe ng-src="{{ VM.previewSrc }}" id="preview"
+                    frameborder="0" style="overflow:hidden;height:100%;width:100%; position: absolute; "
+                    height="100%" width="100%"
+
+            ></iframe>
+        </div>
+    </div>
+</div>

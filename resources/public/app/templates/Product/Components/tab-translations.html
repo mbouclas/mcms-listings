@@ -1,0 +1,27 @@
+<div ng-repeat="(key, locale) in VM.Locales" ng-if="key != VM.defaultLang">
+    <md-toolbar class="md-accent">
+        <div class="md-toolbar-tools">
+            <h3><span>{{ locale.name }}</span></h3>
+        </div>
+    </md-toolbar>
+
+    <md-input-container class="md-block" flex-gt-sm>
+        <label>Title</label>
+        <input ng-model="VM.Item.title[key]"
+                name="title-{{ key }}">
+        <div ng-messages="ItemForm['title-' + key].$error">
+            <ng-messages-include src="{{ VM.ValidationMessagesTemplate }}"></ng-messages-include>
+        </div>
+    </md-input-container>
+
+    <md-input-container class="md-block" flex-gt-sm>
+        <label>Description</label>
+        <textarea ng-model="VM.Item.description[key]" name="description-{{ key }}" redactor placeholder="Description"></textarea>
+    </md-input-container>
+
+    <md-input-container class="md-block" flex-gt-sm>
+        <label>Long Description</label>
+        <textarea ng-model="VM.Item.description_long[key]" name="description_long-{{ key }}" redactor placeholder="Long Description"></textarea>
+    </md-input-container>
+
+</div>

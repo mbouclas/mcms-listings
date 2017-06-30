@@ -1,0 +1,48 @@
+{
+  "name": "mcms-listings",
+  "version": "0.0.1",
+  "author": "Michael Bouclas",
+  "dependencies": {
+    "lodash": "^4.13.1"
+  },
+  "scripts": {
+    "watch": "watchify ./resources/assets/app/index.js -o ./resources/public/js/admin.components.js -v",
+    "watch-app": "watchify ./resources/assets/app/app.js -o ./resources/public/js/admin.app.js -v",
+    "minify-app": "uglifyjs ./resources/public/js/admin.app.js --compress --mangle -o ./resources/public/js/admin.app.min.js",
+    "minify-components": "uglifyjs ./resources/public/js/admin.components.js --compress --mangle -o ./resources/public/js/admin.components.min.js",
+    "watch-dev-templates": "gulp watch-templates --installationDir=\"../../cms-framework\"",
+    "watch-dev": "watchify -t browserify-ngannotate ./resources/assets/app/app.js -o ../cms-framework/public/vendor/mcms/listings/js/listings-compiled.js -v",
+    "dev": "concurrently \"npm run watch-dev\" \"npm run watch-dev-templates\"",
+    "publish": "gulp publish"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "browserify-ngannotate": "^2.0.0",
+    "browserify-shim": "^3.8.12",
+    "fs-extra": "^0.30.0",
+    "gulp": "^3.9.1",
+    "gulp-angular-templatecache": "^1.8.0",
+    "gulp-browserify": "^0.5.1",
+    "gulp-connect": "^4.0.0",
+    "gulp-csso": "^2.0.0",
+    "gulp-filter": "^4.0.0",
+    "gulp-if": "^2.0.0",
+    "gulp-inject": "^4.0.0",
+    "gulp-jshint": "^2.0.0",
+    "gulp-load-plugins": "^1.2.2",
+    "gulp-ng-annotate": "^2.0.0",
+    "gulp-plumber": "^1.1.0",
+    "gulp-print": "^2.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-task-listing": "^1.0.1",
+    "gulp-uglify": "^1.5.3",
+    "gulp-util": "^3.0.7",
+    "gulp-watch": "^4.3.5",
+    "jshint": "^2.9.2",
+    "jshint-stylish": "^2.2.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0",
+    "yargs": "^4.6.0"
+  }
+}

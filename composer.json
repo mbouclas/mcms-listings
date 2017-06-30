@@ -1,0 +1,47 @@
+{
+    "name": "mbouclas/mcms-listings",
+    "type": "library",
+    "description": "The listings package",
+    "keywords": [
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Michael Bouclas",
+            "email": "mbouclas@gmail.com",
+            "homelisting": "",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "illuminate/support": "~5.1",
+        "php" : "~5.5|~7.0",
+        "moneyphp/money": "^3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "4.*",
+        "scrutinizer/ocular": "~1.1",
+        "squizlabs/php_codesniffer": "~2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mcms\\Listings\\": "src"
+        },
+        "psr-0": {
+            "Mcms\\Listings": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Mcms\\Listings\\": "tests"
+        }
+    },
+    "scripts": {
+
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}

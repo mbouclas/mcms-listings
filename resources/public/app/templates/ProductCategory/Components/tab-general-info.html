@@ -1,0 +1,58 @@
+<md-content layout="column" flex="flex">
+    <div layout="" layout-xs="column">
+        <div flex="60" flex-xs="100">
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Title</label>
+                <input ng-model="VM.Item.title[VM.defaultLang]"
+                       required name="title"
+                       to-slug="VM.Item.slug">
+                <div ng-messages="ItemForm.title.$error">
+                    <ng-messages-include src="{{ VM.ValidationMessagesTemplate }}"></ng-messages-include>
+                </div>
+            </md-input-container>
+
+            <md-input-container class="md-block" flex-gt-sm>
+                <label>Permalink</label>
+                <input ng-model="VM.Item.slug" required name="slug">
+            </md-input-container>
+
+                <md-input-container class="md-block" flex-gt-sm>
+                    <label>Description</label>
+                    <textarea ng-model="VM.Item.description[VM.defaultLang]" name="description" placeholder="Description" redactor></textarea>
+
+                </md-input-container>
+
+            <render-settings items="VM.Settings" ng-model="VM.Item.settings"></render-settings>
+
+            <div ng-show="VM.LayoutsObj[VM.Item.settings.Layout.id] && VM.LayoutsObj[VM.Item.settings.Layout.id].config">
+                <h2>Layout settings</h2>
+                <render-settings items="VM.LayoutsObj[VM.Item.settings.Layout.id].config"
+                                 ng-model="VM.Item.settings.Layout"></render-settings>
+            </div>
+        </div><!-- eND LEFT -->
+        <div flex="40" flex-xs="100" layout-padding="">
+            <md-switch ng-model="VM.Item.active" aria-label="Active">
+                Status
+            </md-switch>
+
+            <div ng-if="VM.Item.id" >
+                <img ng-src="{{ VM.Item.thumb.copies.thumb.url }}" style="width: auto;" />
+                <upload  ng-model="VM.Item.thumb"
+                         options="VM.thumbUploadOptions"></upload>
+
+            </div>
+
+            <md-input-container  class="md-block" flex-gt-sm>
+                <label>Layout</label>
+                <md-select aria-label=Layout" placeholder="Layout"
+                           ng-model="VM.Item.settings.Layout.id" >
+                    <md-option value="">None</md-option>
+                    <md-option value="{{ item.varName }}" ng-repeat="item in VM.Layouts">{{ item.label }}</md-option>
+                </md-select>
+            </md-input-container>
+
+
+
+        </div><!-- END RIGHT -->
+    </div>
+</md-content>

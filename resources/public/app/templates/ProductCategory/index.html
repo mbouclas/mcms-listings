@@ -1,0 +1,57 @@
+<md-card class="md-whitespace-4dp">
+
+    <md-toolbar class="md-table-toolbar md-default">
+        <div class="md-toolbar-tools">
+            <h2 class="md-title">Categories</h2>
+            <div flex=""></div>
+            <md-button class="md-fab md-hue-2 md-accent" aria-label="Add"
+                       ng-click="VM.edit()">
+                <md-icon class="material-icons">add</md-icon>
+                <md-tooltip md-direction="top">
+                    Create new
+                </md-tooltip>
+            </md-button>
+            <md-button class="md-fab md-accent" aria-label="Add"
+                       ng-click="VM.save()">
+                <md-icon class="material-icons">save</md-icon>
+                <md-tooltip md-direction="top">
+                    Save all
+                </md-tooltip>
+            </md-button>
+        </div>
+
+
+    </md-toolbar>
+    <div ui-tree="VM.treeOptions" id="tree-root">
+        <ol ui-tree-nodes ng-model="VM.Categories">
+            <li ng-repeat="node in VM.Categories" ui-tree-node ng-include="'nodes_renderer.html'"></li>
+        </ol>
+    </div>
+
+    <!-- Nested node template -->
+    <script type="text/ng-template" id="nodes_renderer.html">
+        <div  class="tree-node tree-node-content" layout="row">
+
+            <span ui-tree-handle><md-icon class="material-icons" >reorder</md-icon></span>
+            <label class="label label-success" ng-if="node.active">Active</label>
+            <label class="label label-error" ng-if="!node.active">Disabled</label>
+
+             <span style="margin-left: 5px"> #{{ node.id }} {{node.title[VM.defaultLang]}}</span>
+            <div flex=""></div>
+            <md-button ng-click="VM.edit(node)">
+                <md-icon class="material-icons">edit</md-icon>
+            </md-button>
+            <md-button product-category-modal="node" modal-mode="add"
+                       ng-click="VM.add(node)">
+                <md-icon class="material-icons">add</md-icon>
+            </md-button>
+            <md-button product-category-modal="node" modal-mode="delete" ng-click="VM.delete(node)">
+                <md-icon class="material-icons">delete</md-icon>
+            </md-button>
+        </div>
+        <ol ui-tree-nodes="" ng-model="node.children" ng-class="{hidden: collapsed}">
+            <li ng-repeat="node in node.children" ui-tree-node ng-include="'nodes_renderer.html'">
+            </li>
+        </ol>
+    </script>
+    </md-card>

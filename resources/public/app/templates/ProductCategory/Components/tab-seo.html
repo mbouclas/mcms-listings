@@ -1,0 +1,8 @@
+<div ng-repeat="(key, locale) in VM.Locales">
+    <md-toolbar class="md-accent">
+        <div class="md-toolbar-tools">
+            <h3><span>{{ locale.name }}</span></h3>
+        </div>
+    </md-toolbar>
+<render-settings items="VM.SEO" ng-model="VM.Item.settings.seo[key]"></render-settings>
+</div>

@@ -1,0 +1,14 @@
+{
+  "name" : "Listings",
+  "package" : "mcms-listings",
+  "modules" : [
+    "mcms.listings"
+  ],
+  "files" : {
+    "js" : [
+      "vendor/mcms/listings/js/listings-compiled.js"
+    ],
+    "css" : [
+    ]
+  }
+}
