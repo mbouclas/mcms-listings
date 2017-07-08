@@ -1,0 +1,35 @@
+<div class="md-dialog-content">
+
+    <form ng-submit=" VM.save()" novalidate name="ItemForm">
+        <md-tabs md-dynamic-height md-border-bottom md-autoselect md-selected="VM.selectedTab">
+            <md-tab label="{{ tab.label }}"
+                    ng-repeat="tab in VM.tabs"
+                    md-active="tab.active">
+                    <md-content class="md-padding" flex>
+<ng-include src="tab.file"></ng-include>
+                    </md-content>
+            </md-tab>
+
+        </md-tabs>
+
+        <div class="alert alert-danger" ng-if="ItemForm.$error.required.length > 0">
+            <h5>You have {{ ItemForm.$error.required.length }} errors</h5>
+            <ul>
+                <li ng-repeat="(key, errors) in ItemForm.$error track by $index"> <strong>{{ key }}</strong> errors
+                    <ul>
+                        <li ng-repeat="e in errors">{{ e.$name }} has an error: <strong>{{ key }}</strong>.</li>
+                    </ul>
+                </li>
+            </ul>
+
+        </div>
+
+        <md-button type="submit" class="md-accent md-raised">
+            <md-icon class="material-icons">save</md-icon>
+            Save
+        </md-button>
+
+
+
+    </form>
+</div>

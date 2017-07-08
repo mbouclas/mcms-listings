@@ -2,15 +2,15 @@
 (function() {
     'use strict';
 
-    angular.module('mcms.products.extraFields')
-        .controller('ProductsExtraFieldHomeController',Controller);
+    angular.module('mcms.listings.extraFields')
+        .controller('ListingsExtraFieldHomeController',Controller);
 
-    Controller.$inject = ['PRODUCTS_CONFIG', 'LayoutManagerService'];
+    Controller.$inject = ['LISTINGS_CONFIG', 'LayoutManagerService'];
 
     function Controller(Config, LMS) {
         var vm = this;
         var layouts = [],
-            allLayouts = LMS.layouts('products.items');
+            allLayouts = LMS.layouts('listings.items');
 
         for (var i in allLayouts){
             layouts.push({
@@ -19,7 +19,7 @@
             });
         }
 
-        vm.Model = Config.productModel;
+        vm.Model = Config.listingModel;
         vm.additionalFields = [
             {
                 varName : 'layoutId',
@@ -35,7 +35,7 @@
 (function(){
     'use strict';
 
-    angular.module('mcms.products.extraFields', []);
+    angular.module('mcms.listings.extraFields', []);
 })();
 
 require('./routes');
@@ -45,17 +45,17 @@ require('./ExtraFieldHomeController');
 (function() {
     'use strict';
 
-    angular.module('mcms.products.extraFields')
+    angular.module('mcms.listings.extraFields')
         .config(config);
 
-    config.$inject = ['$routeProvider','PRODUCTS_CONFIG'];
+    config.$inject = ['$routeProvider','LISTINGS_CONFIG'];
 
     function config($routeProvider,Config) {
 
         $routeProvider
-            .when('/products/extraFields', {
+            .when('/listings/extraFields', {
                 templateUrl:  Config.templatesDir + 'ExtraFields/index.html',
-                controller: 'ProductsExtraFieldHomeController',
+                controller: 'ListingsExtraFieldHomeController',
                 controllerAs: 'VM',
                 reloadOnSearch : true,
                 resolve: {
@@ -63,7 +63,7 @@ require('./ExtraFieldHomeController');
                         return (!ACL.role('admin')) ? $q.reject(403) : $q.resolve();
                     }]
                 },
-                name: 'products-extra-fields-home'
+                name: 'listings-extra-fields-home'
             });
     }
 
@@ -73,12 +73,12 @@ require('./ExtraFieldHomeController');
 (function() {
     'use strict';
 
-    angular.module('mcms.products.productCategory')
-        .controller('ProductCategoryHomeController',Controller);
+    angular.module('mcms.listings.listingCategory')
+        .controller('ListingCategoryHomeController',Controller);
 
-    Controller.$inject = ['init', 'LangService', 'Dialog', 'ProductCategoryService', 'core.services', 'ItemSelectorService'];
+    Controller.$inject = ['init', 'LangService', 'Dialog', 'ListingCategoryService', 'core.services', 'ItemSelectorService'];
 
-    function Controller(Categories, Lang, Dialog, ProductCategoryService, Helpers, ItemSelector) {
+    function Controller(Categories, Lang, Dialog, ListingCategoryService, Helpers, ItemSelector) {
         var vm = this;
         vm.Categories = Categories;
         vm.Lang = Lang;
@@ -89,7 +89,7 @@ require('./ExtraFieldHomeController');
             }
         };
 
-        ProductCategoryService.find(3)
+        ListingCategoryService.find(3)
             .then(function (res) {
                 vm.Item = res;
                 vm.Connectors = ItemSelector.connectors();
@@ -115,12 +115,12 @@ require('./ExtraFieldHomeController');
                 } else {
                     vm.Categories.push(item);
                 }
-                ProductCategoryService.toFlat();
+                ListingCategoryService.toFlat();
 
                 Dialog.close();
                 vm.edit(item);
             }
-            var found = ProductCategoryService.where({id : item.id});
+            var found = ListingCategoryService.where({id : item.id});
 
             if (found){
                 found.title= item.title;
@@ -129,13 +129,13 @@ require('./ExtraFieldHomeController');
 
         vm.add = function (node) {
             node = node || null;
-            var newCategory = ProductCategoryService.newCategory();
+            var newCategory = ListingCategoryService.newCategory();
             newCategory.parent_id = node.id;
 
             Dialog.show({
                 title: (!node) ? 'Create root node' : 'Add node to "' + node.title[vm.defaultLang] + '"',
-                contents: '<edit-product-category item="VM.node" add-to="VM.parentNode" ' +
-                'on-save="VM.onSave(item, isNew, parent)"></edit-product-category>',
+                contents: '<edit-listing-category item="VM.node" add-to="VM.parentNode" ' +
+                'on-save="VM.onSave(item, isNew, parent)"></edit-listing-category>',
                 locals: {
                     node: newCategory,
                     onSave: vm.onSave,
@@ -146,13 +146,13 @@ require('./ExtraFieldHomeController');
 
         vm.edit = function (node) {
             if (!node){
-                node = ProductCategoryService.newCategory();
+                node = ListingCategoryService.newCategory();
             }
 
             Dialog.show({
                 title: (node.id) ? 'Edit "' + node.title[vm.defaultLang] + '"' : 'Create new',
-                contents: '<edit-product-category item="VM.node" ' +
-                'on-save="VM.onSave(item, isNew)"></edit-product-category>',
+                contents: '<edit-listing-category item="VM.node" ' +
+                'on-save="VM.onSave(item, isNew)"></edit-listing-category>',
                 locals: {
                     node: (node.id) ? node.id : node,
                     onSave: vm.onSave
@@ -162,7 +162,7 @@ require('./ExtraFieldHomeController');
         };
 
         vm.save = function () {
-            ProductCategoryService.rebuild(vm.Categories)
+            ListingCategoryService.rebuild(vm.Categories)
                 .then(function () {
                     Helpers.toast('Saved!');
                 });
@@ -171,7 +171,7 @@ require('./ExtraFieldHomeController');
         vm.delete = function (node) {
             Helpers.confirmDialog({}, {})
                 .then(function () {
-                    ProductCategoryService.destroy(node)
+                    ListingCategoryService.destroy(node)
                         .then(function (nodes) {
                             vm.Categories = nodes;
                             Helpers.toast('Deleted');
@@ -186,14 +186,14 @@ require('./ExtraFieldHomeController');
 (function () {
     'use strict';
 
-    angular.module('mcms.products.productCategory')
-        .service('ProductCategoryDataService',Service);
+    angular.module('mcms.listings.listingCategory')
+        .service('ListingCategoryDataService',Service);
 
     Service.$inject = ['$http', '$q'];
 
     function Service($http, $q) {
         var _this = this;
-        var baseUrl = '/admin/api/productCategory/';
+        var baseUrl = '/admin/api/listingCategory/';
 
         this.index = index;
         this.tree = tree;
@@ -250,22 +250,22 @@ require('./ExtraFieldHomeController');
 
 },{}],6:[function(require,module,exports){
 (function () {
-    angular.module('mcms.products.product')
-        .directive('editProductCategory', Directive);
+    angular.module('mcms.listings.listing')
+        .directive('editListingCategory', Directive);
 
-    Directive.$inject = ['PRODUCTS_CONFIG', '$timeout'];
-    DirectiveController.$inject = ['$scope', 'ProductCategoryService',
+    Directive.$inject = ['LISTINGS_CONFIG', '$timeout'];
+    DirectiveController.$inject = ['$scope', 'ListingCategoryService',
         'core.services', 'configuration', 'AuthService', 'LangService',
-        'PRODUCTS_CONFIG', 'ItemSelectorService', 'SeoService', 'mcms.settingsManagerService',
+        'LISTINGS_CONFIG', 'ItemSelectorService', 'SeoService', 'mcms.settingsManagerService',
         'LayoutManagerService', 'ModuleExtender'];
 
     function Directive(Config, $timeout) {
 
         return {
-            templateUrl: Config.templatesDir + "ProductCategory/editProductCategory.component.html",
+            templateUrl: Config.templatesDir + "ListingCategory/editListingCategory.component.html",
             controller: DirectiveController,
             controllerAs: 'VM',
-            require: ['editProductCategory'],
+            require: ['editListingCategory'],
             scope: {
                 options: '=?options',
                 addTo: '=?addTo',
@@ -284,7 +284,7 @@ require('./ExtraFieldHomeController');
         };
     }
 
-    function DirectiveController($scope, ProductCategory, Helpers, Config, ACL, Lang, ProductsConfig, ItemSelector, SEO, SM, LMS, ModuleExtender) {
+    function DirectiveController($scope, ListingCategory, Helpers, Config, ACL, Lang, ListingsConfig, ItemSelector, SEO, SM, LMS, ModuleExtender) {
         var vm = this;
         vm.Lang = Lang;
         vm.defaultLang = Lang.defaultLang();
@@ -300,7 +300,7 @@ require('./ExtraFieldHomeController');
         vm.tabs = [
             {
                 label: 'General',
-                file: ProductsConfig.templatesDir + 'ProductCategory/Components/tab-general-info.html',
+                file: ListingsConfig.templatesDir + 'ListingCategory/Components/tab-general-info.html',
                 active: true,
                 default: true,
                 id: 'general',
@@ -308,41 +308,41 @@ require('./ExtraFieldHomeController');
             },
             {
                 label: 'Translations',
-                file: ProductsConfig.templatesDir + 'ProductCategory/Components/tab-translations.html',
+                file: ListingsConfig.templatesDir + 'ListingCategory/Components/tab-translations.html',
                 active: false,
                 id: 'translations',
                 order : 10
             },
             {
                 label: 'Extra Fields',
-                file: ProductsConfig.templatesDir + 'Product/Components/tab-extra-fields.html',
+                file: ListingsConfig.templatesDir + 'Listing/Components/tab-extra-fields.html',
                 active: false,
                 id: 'extraFields',
                 order : 20
             },
             {
                 label: 'Featured',
-                file: ProductsConfig.templatesDir + 'ProductCategory/Components/tab-featured.html',
+                file: ListingsConfig.templatesDir + 'ListingCategory/Components/tab-featured.html',
                 active: false,
                 id: 'featured',
                 order : 30
             },
             {
                 label : 'SEO',
-                file : ProductsConfig.templatesDir + 'ProductCategory/Components/tab-seo.html',
+                file : ListingsConfig.templatesDir + 'ListingCategory/Components/tab-seo.html',
                 active : false,
                 id : 'seo',
                 order : 40
             }
         ];
 
-        vm.tabs = ModuleExtender.extend('products', vm.tabs);
-        vm.Layouts = LMS.layouts('products.categories');
+        vm.tabs = ModuleExtender.extend('listings', vm.tabs);
+        vm.Layouts = LMS.layouts('listings.categories');
         vm.LayoutsObj = LMS.toObj();
 
         vm.thumbUploadOptions = {
             url : Config.imageUploadUrl,
-            acceptSelect : ProductsConfig.fileTypes.image.acceptSelect,
+            acceptSelect : ListingsConfig.fileTypes.image.acceptSelect,
             maxFiles : 1,
             params : {
                 container : 'Item'
@@ -356,7 +356,7 @@ require('./ExtraFieldHomeController');
         vm.init = function (item) {
             if (typeof item == 'number') {
                 //call for data from the server
-                return ProductCategory.find(item)
+                return ListingCategory.find(item)
                     .then(init);
             }
 
@@ -375,7 +375,7 @@ require('./ExtraFieldHomeController');
 
 
         vm.save = function () {
-            ProductCategory.save(vm.Item)
+            ListingCategory.save(vm.Item)
                 .then(function (result) {
                     var isNew = (!vm.Item.id && result.id);
                     if (isNew) {
@@ -402,9 +402,9 @@ require('./ExtraFieldHomeController');
             vm.SEO = SEO.fields();
             vm.Parent = $scope.addTo || null;
             vm.thumbUploadOptions.params.item_id = item.id;
-            vm.thumbUploadOptions.params.configurator = '\\Mcms\\Products\\Services\\ProductCategory\\ImageConfigurator';
+            vm.thumbUploadOptions.params.configurator = '\\Mcms\\Listings\\Services\\ListingCategory\\ImageConfigurator';
             vm.thumbUploadOptions.params.type = 'thumb';
-            vm.Settings = SM.get({name : 'productCategories'});
+            vm.Settings = SM.get({name : 'listingCategories'});
             LMS.setModel(vm.Item);
         }
     }
@@ -413,7 +413,7 @@ require('./ExtraFieldHomeController');
 (function(){
     'use strict';
 
-    angular.module('mcms.products.productCategory', [
+    angular.module('mcms.listings.listingCategory', [
         'ui.tree'
     ])
         .run(run);
@@ -430,31 +430,31 @@ require('./ExtraFieldHomeController');
 require('./routes');
 require('./dataService');
 require('./service');
-require('./ProductCategoryHomeController');
-require('./editProductCategory.component');
-},{"./ProductCategoryHomeController":4,"./dataService":5,"./editProductCategory.component":6,"./routes":8,"./service":9}],8:[function(require,module,exports){
+require('./ListingCategoryHomeController');
+require('./editListingCategory.component');
+},{"./ListingCategoryHomeController":4,"./dataService":5,"./editListingCategory.component":6,"./routes":8,"./service":9}],8:[function(require,module,exports){
 (function() {
     'use strict';
 
-    angular.module('mcms.products.productCategory')
+    angular.module('mcms.listings.listingCategory')
         .config(config);
 
-    config.$inject = ['$routeProvider','PRODUCTS_CONFIG'];
+    config.$inject = ['$routeProvider','LISTINGS_CONFIG'];
 
     function config($routeProvider,Config) {
 
         $routeProvider
-            .when('/products/categories', {
-                templateUrl:  Config.templatesDir + 'ProductCategory/index.html',
-                controller: 'ProductCategoryHomeController',
+            .when('/listings/categories', {
+                templateUrl:  Config.templatesDir + 'ListingCategory/index.html',
+                controller: 'ListingCategoryHomeController',
                 controllerAs: 'VM',
                 reloadOnSearch : false,
                 resolve: {
-                    init : ["AuthService", '$q', 'ProductCategoryService', function (ACL, $q, Category) {
+                    init : ["AuthService", '$q', 'ListingCategoryService', function (ACL, $q, Category) {
                         return (!ACL.role('admin')) ? $q.reject(403) : Category.get();
                     }]
                 },
-                name: 'products-categories'
+                name: 'listings-categories'
             });
     }
 
@@ -464,10 +464,10 @@ require('./editProductCategory.component');
 (function () {
     'use strict';
 
-    angular.module('mcms.products.productCategory')
-        .service('ProductCategoryService',Service);
+    angular.module('mcms.listings.listingCategory')
+        .service('ListingCategoryService',Service);
 
-    Service.$inject = ['ProductCategoryDataService', 'ItemSelectorService', 'SeoService', 'LangService',
+    Service.$inject = ['ListingCategoryDataService', 'ItemSelectorService', 'SeoService', 'LangService',
         'core.services', 'lodashFactory','mcms.settingsManagerService'];
 
     function Service(DS, ItemSelector, SEO, Lang, Helpers, lo, SM) {
@@ -580,12 +580,12 @@ require('./editProductCategory.component');
 (function() {
     'use strict';
 
-    angular.module('mcms.products.product')
-        .controller('ProductController',Controller);
+    angular.module('mcms.listings.listing')
+        .controller('ListingController',Controller);
 
-    Controller.$inject = ['item', 'LangService', '$location', '$filter', '$scope', '$rootScope', 'ProductService'];
+    Controller.$inject = ['item', 'LangService', '$location', '$filter', '$scope', '$rootScope', 'ListingService'];
 
-    function Controller(Item, Lang, $location, $filter, $scope, $rootScope, ProductService) {
+    function Controller(Item, Lang, $location, $filter, $scope, $rootScope, ListingService) {
         var vm = this,
             previewOn = false;
 
@@ -597,7 +597,7 @@ require('./editProductCategory.component');
 
         vm.onSave = function (item, isNew) {
             if (isNew){
-                $location.path($filter('reverseUrl')('products-edit',{id : item.id}).replace('#',''));
+                $location.path($filter('reverseUrl')('listings-edit',{id : item.id}).replace('#',''));
             }
         };
 
@@ -612,7 +612,7 @@ require('./editProductCategory.component');
                 return;
             }
 
-            ProductService.previewUrl(vm.Item.id)
+            ListingService.previewUrl(vm.Item.id)
                 .then(function (response) {
                     vm.previewSrc = response.url;
                     togglePreview();
@@ -621,7 +621,7 @@ require('./editProductCategory.component');
         };
 
         vm.openInNewTab = function () {
-            ProductService.previewUrl(vm.Item.id)
+            ListingService.previewUrl(vm.Item.id)
                 .then(function (response) {
                     var win = window.open(response.url, '_blank');
                     if (win) {
@@ -639,7 +639,7 @@ require('./editProductCategory.component');
             $scope.preview = !$scope.preview;
             $scope.layout = ($scope.preview) ? 'row' : 'column';
             $rootScope.$broadcast('sideNav.unlock', !$scope.preview);
-            $rootScope.$broadcast('product.preview', $scope.preview);
+            $rootScope.$broadcast('listing.preview', $scope.preview);
         }
 
     }
@@ -650,13 +650,13 @@ require('./editProductCategory.component');
 (function() {
     'use strict';
 
-    angular.module('mcms.products.product')
-        .controller('ProductHomeController',Controller);
+    angular.module('mcms.listings.listing')
+        .controller('ListingHomeController',Controller);
 
-    Controller.$inject = ['init', 'ProductService', '$mdBottomSheet', 'LangService',
+    Controller.$inject = ['init', 'ListingService', '$mdBottomSheet', 'LangService',
         '$mdSidenav', 'BottomSheet', 'Dialog', '$filter', '$location', 'core.services', '$rootScope', '$scope'];
 
-    function Controller(Init, ProductService, $mdBottomSheet, Lang, $mdSidenav, BottomSheet, Dialog,
+    function Controller(Init, ListingService, $mdBottomSheet, Lang, $mdSidenav, BottomSheet, Dialog,
                         $filter, $location, Helpers, $rootScope, $scope) {
 
         Helpers.clearLocation($scope);
@@ -675,13 +675,13 @@ require('./editProductCategory.component');
                 value: false
             }
         ];
-        vm.filters = ProductService.availableFilters();
+        vm.filters = ListingService.availableFilters();
 
-        var Products = Init[0];
+        var Listings = Init[0];
         vm.Lang = Lang;
         vm.defaultLang = Lang.defaultLang();
-        vm.Pagination = Products;
-        vm.Items = Products.data;
+        vm.Pagination = Listings;
+        vm.Items = Listings.data;
         vm.Categories = Init[1];
 
         vm.sort = function (sort, direction) {
@@ -693,7 +693,7 @@ require('./editProductCategory.component');
         function filter() {
             vm.Loading = true;
             vm.Items = [];
-            return ProductService.get(vm.filters)
+            return ListingService.get(vm.filters)
                 .then(function (res) {
                     $location.search(vm.filters);
                     vm.Loading = false;
@@ -710,7 +710,7 @@ require('./editProductCategory.component');
         };
 
         vm.applyFilters = function () {
-            vm.filters.product = 1;
+            vm.filters.listing = 1;
             filter();
         };
 
@@ -724,18 +724,18 @@ require('./editProductCategory.component');
 
         vm.edit = function (item) {
             var id = (item) ? item.id : 'new';
-            $location.path($filter('reverseUrl')('products-edit',{id : id}).replace('#',''));
+            $location.path($filter('reverseUrl')('listings-edit',{id : id}).replace('#',''));
         };
 
         vm.quickEdit = function (item) {
             if (!item || !item.id){
-                item = ProductService.newProduct();
+                item = ListingService.newListing();
             }
 
 
             Dialog.show({
                 title : (!item.id) ? 'Create item' : 'Edit #' + item.id,
-                contents : '<edit-product item="VM.Item.id" on-save="VM.onSave(item, isNew)"></edit-product>',
+                contents : '<edit-listing item="VM.Item.id" on-save="VM.onSave(item, isNew)"></edit-listing>',
                 locals : {
                     Item :item,
                     onSave : vm.onSave
@@ -746,7 +746,7 @@ require('./editProductCategory.component');
         vm.enableItem = function (item) {
             item.active = true;
 
-            ProductService.save(item)
+            ListingService.save(item)
                 .then(function () {
                     Helpers.toast('Saved!');
                 });
@@ -755,7 +755,7 @@ require('./editProductCategory.component');
         vm.disableItem = function (item) {
             item.active = false;
 
-            ProductService.save(item)
+            ListingService.save(item)
                 .then(function () {
                     Helpers.toast('Saved!');
                 });
@@ -764,7 +764,7 @@ require('./editProductCategory.component');
         vm.delete = function (item) {
             Helpers.confirmDialog({}, {})
                 .then(function () {
-                    ProductService.destroy(item)
+                    ListingService.destroy(item)
                         .then(function () {
                             filter();
                             Helpers.toast('Saved!');
@@ -794,7 +794,7 @@ require('./editProductCategory.component');
         };
 
         function resetFilters() {
-            vm.filters = ProductService.availableFilters(true);
+            vm.filters = ListingService.availableFilters(true);
         }
 
     }
@@ -805,15 +805,15 @@ require('./editProductCategory.component');
 (function(){
     'use strict';
 
-    angular.module('mcms.products.product')
-        .directive('latestProductsWidget', Component);
+    angular.module('mcms.listings.listing')
+        .directive('latestListingsWidget', Component);
 
-    Component.$inject = ['PRODUCTS_CONFIG', 'ProductService'];
+    Component.$inject = ['LISTINGS_CONFIG', 'ListingService'];
 
-    function Component(Config, Product){
+    function Component(Config, Listing){
 
         return {
-            templateUrl: Config.templatesDir + "Product/Widgets/latestProducts.widget.html",
+            templateUrl: Config.templatesDir + "Listing/Widgets/latestListings.widget.html",
             restrict : 'E',
             scope : {
                 options : '=?options'
@@ -824,7 +824,7 @@ require('./editProductCategory.component');
                     scope.Options = angular.extend(scope.Options, scope.options);
                 }
 
-                Product.init({limit : scope.Options.limit}).then(function (res) {
+                Listing.init({limit : scope.Options.limit}).then(function (res) {
                     scope.Categories = res[1];
                     scope.Items = res[0];
 
@@ -837,14 +837,14 @@ require('./editProductCategory.component');
 (function () {
     'use strict';
 
-    angular.module('mcms.products.product')
-        .service('ProductDataService',Service);
+    angular.module('mcms.listings.listing')
+        .service('ListingDataService',Service);
 
-    Service.$inject = ['$http', '$q', 'PRODUCTS_CONFIG'];
+    Service.$inject = ['$http', '$q', 'LISTINGS_CONFIG'];
 
     function Service($http, $q, Config) {
         var _this = this;
-        var baseUrl = '/admin/api/product/';
+        var baseUrl = '/admin/api/listing/';
 
         this.index = index;
         this.store = store;
@@ -890,23 +890,23 @@ require('./editProductCategory.component');
 
 },{}],14:[function(require,module,exports){
 (function () {
-    angular.module('mcms.products.product')
-        .directive('editProduct', Directive);
+    angular.module('mcms.listings.listing')
+        .directive('editListing', Directive);
 
-    Directive.$inject = ['PRODUCTS_CONFIG', 'hotkeys'];
-    DirectiveController.$inject = [ '$scope','ProductService',
+    Directive.$inject = ['LISTINGS_CONFIG', 'hotkeys'];
+    DirectiveController.$inject = [ '$scope','ListingService',
         'core.services', 'configuration', 'AuthService', 'LangService',
-        'ProductCategoryService',  'PRODUCTS_CONFIG', 'ItemSelectorService', 'lodashFactory',
+        'ListingCategoryService',  'LISTINGS_CONFIG', 'ItemSelectorService', 'lodashFactory',
         'mcms.settingsManagerService', 'SeoService', 'LayoutManagerService', '$timeout', '$rootScope', '$q',
         'momentFactory', 'ModuleExtender', 'MediaLibraryService', 'ExtraFieldService', 'DynamicTableService'];
 
     function Directive(Config, hotkeys) {
 
         return {
-            templateUrl: Config.templatesDir + "Product/editProduct.component.html",
+            templateUrl: Config.templatesDir + "Listing/editListing.component.html",
             controller: DirectiveController,
             controllerAs: 'VM',
-            require : ['editProduct'],
+            require : ['editListing'],
             scope: {
                 options: '=?options',
                 item: '=?item',
@@ -944,12 +944,12 @@ require('./editProductCategory.component');
         };
     }
 
-    function DirectiveController($scope, Product, Helpers, Config, ACL, Lang, ProductCategory, ProductsConfig,
+    function DirectiveController($scope, Listing, Helpers, Config, ACL, Lang, ListingCategory, ListingsConfig,
                                  ItemSelector, lo, SM, SEO, LMS, $timeout, $rootScope, $q,
                                  moment, ModuleExtender, MLS, ExtraFieldService, DynamicTableService) {
         var vm = this,
             autoSaveHooks = [],
-            Model = '\\Mcms\\Products\\Models\\Product';
+            Model = '\\Mcms\\Listings\\Models\\Listing';
 
         vm.published_at = {};
         vm.Lang = Lang;
@@ -966,7 +966,7 @@ require('./editProductCategory.component');
         vm.tabs = [
             {
                 label : 'General',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-general-info.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-general-info.html',
                 active : true,
                 default : true,
                 id : 'general',
@@ -974,14 +974,14 @@ require('./editProductCategory.component');
             },
             {
                 label : 'Translations',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-translations.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-translations.html',
                 active : false,
                 id : 'translations',
                 order : 20
             },
             {
                 label : 'Image gallery',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-image-gallery.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-image-gallery.html',
                 active : false,
                 default : false,
                 id : 'imageGallery',
@@ -989,7 +989,7 @@ require('./editProductCategory.component');
             },
             {
                 label : 'Files',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-file-gallery.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-file-gallery.html',
                 active : false,
                 default : false,
                 id : 'fileGallery',
@@ -997,28 +997,28 @@ require('./editProductCategory.component');
             },
             {
                 label : 'Extra Fields',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-extra-fields.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-extra-fields.html',
                 active : false,
                 id : 'extraFields',
                 order : 45
             },
             {
                 label : 'Related Items',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-related-items.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-related-items.html',
                 active : false,
                 id : 'related',
                 order : 50
             },
             {
                 label : 'SEO',
-                file : ProductsConfig.templatesDir + 'Product/Components/tab-seo.html',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-seo.html',
                 active : false,
                 id : 'seo',
                 order : 60
             }
         ];
 
-        vm.tabs = ModuleExtender.extend('products', vm.tabs);
+        vm.tabs = ModuleExtender.extend('listings', vm.tabs);
         if (Lang.allLocales().length == 1){
             //remove the translation tab
             var tabIndex = lo.findIndex(vm.tabs, {id : 'translations'});
@@ -1027,7 +1027,7 @@ require('./editProductCategory.component');
         vm.Categories = [];
         vm.thumbUploadOptions = {
             url : Config.imageUploadUrl,
-            acceptSelect : ProductsConfig.fileTypes.image.acceptSelect,
+            acceptSelect : ListingsConfig.fileTypes.image.acceptSelect,
             maxFiles : 1,
             params : {
                 container : 'Item'
@@ -1035,12 +1035,12 @@ require('./editProductCategory.component');
         };
 
         vm.imagesUploadOptions = {
-            url : ProductsConfig.imageUploadUrl,
-            acceptSelect : ProductsConfig.fileTypes.image.acceptSelect,
+            url : ListingsConfig.imageUploadUrl,
+            acceptSelect : ListingsConfig.fileTypes.image.acceptSelect,
             params : {
                 container : 'Item'
             },
-            uploadOptions : ProductsConfig.fileTypes.image.uploadOptions
+            uploadOptions : ListingsConfig.fileTypes.image.uploadOptions
         };
         vm.mediaFilesOptions = {imageTypes : [], withMediaLibrary : true};
         vm.UploadConfig = {
@@ -1050,21 +1050,21 @@ require('./editProductCategory.component');
 
         vm.FileUploadConfig = {
             url : Config.fileUploadUrl,
-            acceptedFiles : ProductsConfig.fileTypes.file.acceptSelect,
-            uploadOptions : ProductsConfig.fileTypes.file.uploadOptions,
+            acceptedFiles : ListingsConfig.fileTypes.file.acceptSelect,
+            uploadOptions : ListingsConfig.fileTypes.file.uploadOptions,
             params : {
                 container : 'Item'
             }
         };
 
-        vm.Layouts = LMS.layouts('products.items');
+        vm.Layouts = LMS.layouts('listings.items');
         vm.LayoutsObj = LMS.toObj();
         vm.categoriesValid = null;
 
         vm.init = function (item) {
             if (!item.id){
                 //call for data from the server
-                return Product.find(item)
+                return Listing.find(item)
                     .then(init);
             }
 
@@ -1098,7 +1098,7 @@ require('./editProductCategory.component');
             vm.Item.published_at = Helpers.deComposeDate(vm.publish_at).toISOString();
 
 
-            return Product.save(vm.Item)
+            return Listing.save(vm.Item)
                 .then(function (result) {
                     Helpers.toast('Saved!', null, null, 'success');
 
@@ -1152,7 +1152,7 @@ require('./editProductCategory.component');
                 return (!query) ? vm.Categories : vm.Categories.filter( Helpers.createFilterFor('title',query) );
             }
 
-            return ProductCategory.tree()
+            return ListingCategory.tree()
                 .then(function (res) {
                     vm.Categories = res;
                     return (!query) ? res : res.filter( Helpers.createFilterFor('title',query) );
@@ -1161,7 +1161,7 @@ require('./editProductCategory.component');
 
         function init(item) {
             vm.Item = item;
-            vm.DynamicTables = DynamicTableService.tables('products');
+            vm.DynamicTables = DynamicTableService.tables('listings');
 
             if (typeof vm.Item.files == 'undefined'){
                 vm.Item.files = [];
@@ -1190,21 +1190,21 @@ require('./editProductCategory.component');
             vm.FileUploadConfig.params.model = Model;
             vm.FileUploadConfig.params.type = 'file';
             LMS.setModel(vm.Item);
-            vm.Settings = SM.get({name : 'products'});
+            vm.Settings = SM.get({name : 'listings'});
             if (lo.isArray(vm.Item.categories) && vm.Item.categories.length > 0){
                 vm.categoriesValid = true;
             }
 
             vm.filterExtraFields();
-            vm.adminSize = Product.imageSettings().adminCopy();
-            vm.recommendedSizeLabel = Product.imageSettings().recommendedSizeLabel();
+            vm.adminSize = Listing.imageSettings().adminCopy();
+            vm.recommendedSizeLabel = Listing.imageSettings().recommendedSizeLabel();
         }
 
         vm.filterExtraFields = function() {
             var layout = (typeof vm.Item.settings.Layout.id != 'undefined') ? vm.Item.settings.Layout.id : null;
 
             vm.ExtraFields = ExtraFieldService
-                .filter(Product.extraFields())
+                .filter(Listing.extraFields())
                 .whereIn('layoutId', layout);
         };
 
@@ -1255,7 +1255,7 @@ require('./editProductCategory.component');
             }
         );
 
-        $rootScope.$on('product.preview', function (e, preview) {
+        $rootScope.$on('listing.preview', function (e, preview) {
             if (preview){
                 autoSaveHooks.push($scope.refreshIframe);
             } else {
@@ -1278,7 +1278,7 @@ require('./editProductCategory.component');
 (function(){
     'use strict';
 
-    angular.module('mcms.products.product', [
+    angular.module('mcms.listings.listing', [
         'cfp.hotkeys'
     ])
         .run(run);
@@ -1287,9 +1287,9 @@ require('./editProductCategory.component');
 
     function run(Widget) {
         Widget.registerWidget(Widget.newWidget({
-            id : 'latestProducts',
-            title : 'Latest products',
-            template : '<latest-products-widget></latest-products-widget>',
+            id : 'latestListings',
+            title : 'Latest listings',
+            template : '<latest-listings-widget></latest-listings-widget>',
             settings : {},
             order : 10
         }));
@@ -1300,28 +1300,28 @@ require('./editProductCategory.component');
 require('./routes');
 require('./dataService');
 require('./service');
-require('./ProductHomeController');
-require('./ProductController');
-require('./productList.component');
-require('./editProduct.component');
-require('./Widgets/latestProducts.widget');
+require('./ListingHomeController');
+require('./ListingController');
+require('./listingList.component');
+require('./editListing.component');
+require('./Widgets/latestListings.widget');
 
-},{"./ProductController":10,"./ProductHomeController":11,"./Widgets/latestProducts.widget":12,"./dataService":13,"./editProduct.component":14,"./productList.component":16,"./routes":17,"./service":18}],16:[function(require,module,exports){
+},{"./ListingController":10,"./ListingHomeController":11,"./Widgets/latestListings.widget":12,"./dataService":13,"./editListing.component":14,"./listingList.component":16,"./routes":17,"./service":18}],16:[function(require,module,exports){
 (function () {
-    angular.module('mcms.products.product')
-        .directive('productList', Directive);
+    angular.module('mcms.listings.listing')
+        .directive('listingList', Directive);
 
-    Directive.$inject = ['PRODUCTS_CONFIG', '$timeout'];
-    Controller.$inject = ['$scope', 'ProductService', '$mdBottomSheet', 'LangService',
+    Directive.$inject = ['LISTINGS_CONFIG', '$timeout'];
+    Controller.$inject = ['$scope', 'ListingService', '$mdBottomSheet', 'LangService',
         '$mdSidenav', 'BottomSheet', 'Dialog', '$filter', '$location', 'core.services', '$rootScope'];
 
     function Directive(Config, $timeout) {
 
         return {
-            templateUrl: Config.templatesDir + "Product/Components/productList.component.html",
+            templateUrl: Config.templatesDir + "Listing/Components/listingList.component.html",
             controller: Controller,
             controllerAs: 'VM',
-            require: ['productList'],
+            require: ['listingList'],
             scope: {
                 options: '=?options',
                 items: '=items',
@@ -1346,7 +1346,7 @@ require('./Widgets/latestProducts.widget');
         };
     }
 
-    function Controller($scope, ProductService, $mdBottomSheet, Lang, $mdSidenav, BottomSheet, Dialog,
+    function Controller($scope, ListingService, $mdBottomSheet, Lang, $mdSidenav, BottomSheet, Dialog,
                         $filter, $location, Helpers, $rootScope) {
         var vm = this,
             Filters = {
@@ -1361,7 +1361,7 @@ require('./Widgets/latestProducts.widget');
                 dateMode: 'created_at',
                 orderBy : 'created_at',
                 way : 'DESC',
-                product: 1,
+                listing: 1,
                 limit : $scope.options.limit || 10
             };
         vm.Items = [];
@@ -1401,7 +1401,7 @@ require('./Widgets/latestProducts.widget');
         function filter() {
             vm.Loading = true;
             vm.Items = [];
-            return ProductService.get(vm.filters)
+            return ListingService.get(vm.filters)
                 .then(function (res) {
                     vm.Loading = false;
                     vm.Pagination = res;
@@ -1429,18 +1429,18 @@ require('./Widgets/latestProducts.widget');
 
         vm.edit = function (item) {
             var id = (item) ? item.id : 'new';
-            $location.path($filter('reverseUrl')('products-edit',{id : id}).replace('#',''));
+            $location.path($filter('reverseUrl')('listings-edit',{id : id}).replace('#',''));
         };
 
         vm.quickEdit = function (item) {
             if (!item || !item.id){
-                item = ProductService.newProduct();
+                item = ListingService.newListing();
             }
 
 
             Dialog.show({
                 title : (!item.id) ? 'Create item' : 'Edit #' + item.id,
-                contents : '<edit-product item="VM.Item.id" on-save="VM.onSave(item, isNew)"></edit-product>',
+                contents : '<edit-listing item="VM.Item.id" on-save="VM.onSave(item, isNew)"></edit-listing>',
                 locals : {
                     Item :item,
                     onSave : vm.onSave
@@ -1451,7 +1451,7 @@ require('./Widgets/latestProducts.widget');
         vm.enableItem = function (item) {
             item.active = true;
 
-            ProductService.save(item)
+            ListingService.save(item)
                 .then(function () {
                     Helpers.toast('Saved!');
                 });
@@ -1460,7 +1460,7 @@ require('./Widgets/latestProducts.widget');
         vm.disableItem = function (item) {
             item.active = false;
 
-            ProductService.save(item)
+            ListingService.save(item)
                 .then(function () {
                     Helpers.toast('Saved!');
                 });
@@ -1469,7 +1469,7 @@ require('./Widgets/latestProducts.widget');
         vm.delete = function (item) {
             Helpers.confirmDialog({}, {})
                 .then(function () {
-                    ProductService.destroy(item)
+                    ListingService.destroy(item)
                         .then(function () {
                             filter();
                             Helpers.toast('Saved!');
@@ -1505,37 +1505,37 @@ require('./Widgets/latestProducts.widget');
 (function() {
     'use strict';
 
-    angular.module('mcms.products.product')
+    angular.module('mcms.listings.listing')
         .config(config);
 
-    config.$inject = ['$routeProvider','PRODUCTS_CONFIG'];
+    config.$inject = ['$routeProvider','LISTINGS_CONFIG'];
 
     function config($routeProvider,Config) {
 
         $routeProvider
-            .when('/products/content', {
-                templateUrl:  Config.templatesDir + 'Product/index.html',
-                controller: 'ProductHomeController',
+            .when('/listings/content', {
+                templateUrl:  Config.templatesDir + 'Listing/index.html',
+                controller: 'ListingHomeController',
                 controllerAs: 'VM',
                 reloadOnSearch : true,
                 resolve: {
-                    init : ["AuthService", '$q', 'ProductService', function (ACL, $q, Product) {
-                        return (!ACL.role('admin')) ? $q.reject(403) : Product.init();
+                    init : ["AuthService", '$q', 'ListingService', function (ACL, $q, Listing) {
+                        return (!ACL.role('admin')) ? $q.reject(403) : Listing.init();
                     }]
                 },
-                name: 'products-home'
+                name: 'listings-home'
             })
-            .when('/products/content/:id', {
-                templateUrl:  Config.templatesDir + 'Product/editProduct.html',
-                controller: 'ProductController',
+            .when('/listings/content/:id', {
+                templateUrl:  Config.templatesDir + 'Listing/editListing.html',
+                controller: 'ListingController',
                 controllerAs: 'VM',
                 reloadOnSearch : false,
                 resolve: {
-                    item : ["AuthService", '$q', 'ProductService', '$route', function (ACL, $q, Product, $route) {
-                        return (!ACL.role('admin')) ? $q.reject(403) : Product.find($route.current.params.id);
+                    item : ["AuthService", '$q', 'ListingService', '$route', function (ACL, $q, Listing, $route) {
+                        return (!ACL.role('admin')) ? $q.reject(403) : Listing.find($route.current.params.id);
                     }]
                 },
-                name: 'products-edit'
+                name: 'listings-edit'
             });
     }
 
@@ -1545,34 +1545,34 @@ require('./Widgets/latestProducts.widget');
 (function () {
     'use strict';
 
-    angular.module('mcms.products.product')
-        .service('ProductService',Service);
+    angular.module('mcms.listings.listing')
+        .service('ListingService',Service);
 
-    Service.$inject = ['ProductDataService', 'LangService', 'lodashFactory', 'mediaFileService',
-        '$q', 'ProductCategoryService', 'ItemSelectorService', 'mcms.settingsManagerService',
-        'SeoService', 'TagsService', '$location', 'PRODUCTS_CONFIG', 'core.services', 'ExtraFieldService', '' +
+    Service.$inject = ['ListingDataService', 'LangService', 'lodashFactory', 'mediaFileService',
+        '$q', 'ListingCategoryService', 'ItemSelectorService', 'mcms.settingsManagerService',
+        'SeoService', 'TagsService', '$location', 'LISTINGS_CONFIG', 'core.services', 'ExtraFieldService', '' +
         'DynamicTableService'];
 
-    function Service(DS, Lang, lo, MediaFiles, $q, ProductCategoryService, ItemSelector,
+    function Service(DS, Lang, lo, MediaFiles, $q, ListingCategoryService, ItemSelector,
                      SM, SEO, Tags, $location, Config, Helpers, ExtraFieldService, DynamicTableService) {
         var _this = this,
             Filters = {},
             ExtraFields = [],
-            Products = [],
+            Listings = [],
             ImageSettings = {},
             ImageCopies = [];
 
         this.get = get;
         this.init = init;
         this.find = find;
-        this.newProduct = newProduct;
+        this.newListing = newListing;
         this.save = save;
         this.destroy = destroy;
         this.availableFilters = availableFilters;
         this.previewUrl = previewUrl;
         this.extraFields = extraFields;
-        this.formatProductAccessor = formatProductAccessor;
-        this.formatProductMutator = formatProductMutator;
+        this.formatListingAccessor = formatListingAccessor;
+        this.formatListingMutator = formatListingMutator;
         this.imageSettings = imageSettings;
 
         function init(filters) {
@@ -1593,13 +1593,13 @@ require('./Widgets/latestProducts.widget');
         function get(filters) {
             return DS.index(filters)
                 .then(function (response) {
-                    Products = response;
-                    return Products;
+                    Listings = response;
+                    return Listings;
                 });
         }
 
         function categories() {
-            return ProductCategoryService.tree();
+            return ListingCategoryService.tree();
         }
 
         function find(id) {
@@ -1616,12 +1616,12 @@ require('./Widgets/latestProducts.widget');
                     SEO.init(response.seoFields);
                     Tags.set(response.tags);
                     ExtraFields = ExtraFieldService.convertFieldsFromMysql(response.extraFields);
-                    DynamicTableService.tables('products', response.dynamicTables);
-                    return formatProductAccessor(response.item) || newProduct();
+                    DynamicTableService.tables('listings', response.dynamicTables);
+                    return formatListingAccessor(response.item) || newListing();
                 });
         }
 
-        function newProduct() {
+        function newListing() {
             return {
                 title : Lang.langFields(),
                 slug : '',
@@ -1644,7 +1644,7 @@ require('./Widgets/latestProducts.widget');
 
         function save(item) {
             var toSave = angular.copy(item);
-            toSave = formatProductMutator(toSave);
+            toSave = formatListingMutator(toSave);
             if (!item.id){
                 return DS.store(toSave);
             }
@@ -1675,7 +1675,7 @@ require('./Widgets/latestProducts.widget');
                 dateMode: 'created_at',
                 orderBy : 'created_at',
                 way : 'DESC',
-                product: 1,
+                listing: 1,
                 limit :  10
             };
         }
@@ -1688,7 +1688,7 @@ require('./Widgets/latestProducts.widget');
             return DS.previewUrl(id);
         }
 
-        function formatProductAccessor(item) {
+        function formatListingAccessor(item) {
             if (lo.isNull(item)){
                 return item;
             }
@@ -1705,7 +1705,7 @@ require('./Widgets/latestProducts.widget');
             return item;
         }
 
-        function formatProductMutator(item) {
+        function formatListingMutator(item) {
             item.price = parseInt(item.price*100);
 
             return item;
@@ -1738,17 +1738,17 @@ require('./Widgets/latestProducts.widget');
     var assetsUrl = '/assets/',
         appUrl = '/app/',
         componentsUrl = appUrl + 'Components/',
-        templatesDir = '/vendor/mcms/products/app/templates/',
-    itemModelName = 'Mcms\\\\Products\\\\Models\\\\Product',
-    categoryModelName = 'Mcms\\\\Products\\\\Models\\\\ProductCategory';
+        templatesDir = '/vendor/mcms/listings/app/templates/',
+    itemModelName = 'Mcms\\\\Listings\\\\Models\\\\Listing',
+    categoryModelName = 'Mcms\\\\Listings\\\\Models\\\\ListingCategory';
 
     var config = {
         itemModelName : itemModelName,
-        productModel : itemModelName,
-        productCategoryModel : categoryModelName,
+        listingModel : itemModelName,
+        listingCategoryModel : categoryModelName,
         apiUrl : '/api/',
         prefixUrl : '/admin',
-        previewUrl : '/admin/api/product/preview/',
+        previewUrl : '/admin/api/listing/preview/',
         templatesDir : templatesDir,
         imageUploadUrl: '/admin/api/upload/image',
         fileUploadUrl: '/admin/api/upload/file',
@@ -1778,32 +1778,32 @@ require('./Widgets/latestProducts.widget');
     };
 
     angular.module('mcms.core')
-        .constant('PRODUCTS_CONFIG',config);
+        .constant('LISTINGS_CONFIG',config);
 })();
 
 },{}],20:[function(require,module,exports){
 (function () {
     'use strict';
 
-    angular.module('mcms.products', [
+    angular.module('mcms.listings', [
         'mcms.mediaFiles',
         'mcms.fileGallery',
         'mcms.extraFields',
-        'mcms.products.product',
-        'mcms.products.productCategory',
-        'mcms.products.extraFields',
+        'mcms.listings.listing',
+        'mcms.listings.listingCategory',
+        'mcms.listings.extraFields',
         'ngFileUpload'
     ])
         .run(run);
 
-    run.$inject = ['mcms.menuService', 'PRODUCTS_CONFIG', 'DynamicTableService'];
+    run.$inject = ['mcms.menuService', 'LISTINGS_CONFIG', 'DynamicTableService'];
 
     function run(Menu, Config, DynamicTableService) {
-        DynamicTableService.mapModel('products', Config.itemModelName);
+        DynamicTableService.mapModel('listings', Config.itemModelName);
 
         Menu.addMenu(Menu.newItem({
-            id: 'products',
-            title: 'Products',
+            id: 'listings',
+            title: 'Listings',
             permalink: '',
             icon: 'shopping_cart',
             order: 1,
@@ -1813,34 +1813,34 @@ require('./Widgets/latestProducts.widget');
             }
         }));
 
-        var productsMenu = Menu.find('products');
+        var listingsMenu = Menu.find('listings');
 
-        productsMenu.addChildren([
+        listingsMenu.addChildren([
             Menu.newItem({
-                id: 'productsCategories-manager',
+                id: 'listingsCategories-manager',
                 title: 'Categories',
-                permalink: '/products/categories',
+                permalink: '/listings/categories',
                 icon: 'view_list',
                 order : 1
             }),
             Menu.newItem({
-                id: 'products-manager',
+                id: 'listings-manager',
                 title: 'Catalogue',
-                permalink: '/products/content',
+                permalink: '/listings/content',
                 icon: 'content_copy',
                 order : 2
             }),
             Menu.newItem({
-                id: 'products-extra-fields',
+                id: 'listings-extra-fields',
                 title: 'Extra Fields',
-                permalink: '/products/extraFields',
+                permalink: '/listings/extraFields',
                 icon: 'note_add',
                 order : 3
             }),
             Menu.newItem({
                 id: 'dynamic-tables',
                 title: 'Dynamic Tables',
-                permalink: '/dynamicTables/products',
+                permalink: '/dynamicTables/listings',
                 icon: 'assignment',
                 order : 4
             })
@@ -1850,8 +1850,8 @@ require('./Widgets/latestProducts.widget');
 })();
 
 require('./config');
-require('./Product');
-require('./ProductCategory');
+require('./Listing');
+require('./ListingCategory');
 require('./ExtraFields');
 
-},{"./ExtraFields":2,"./Product":15,"./ProductCategory":7,"./config":19}]},{},[20])
+},{"./ExtraFields":2,"./Listing":15,"./ListingCategory":7,"./config":19}]},{},[20])
