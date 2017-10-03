@@ -100,7 +100,10 @@ class ListingService
             $Listing->dynamicTables()->sync($dynamicTableService->sync($listing['dynamic_tables']));
         }
         $Listing = $this->fixTags($listing, $Listing);
-        $Listing->extraFieldValues()->sync($Listing->sortOutExtraFields($listing['extra_fields']));
+        if (isset($listing['extra_fields'])){
+            $Listing->extraFieldValues()->sync($Listing->sortOutExtraFields($Listing['extra_fields']));
+        }
+
         //emit an event so that some other bit of the app might catch it
         Event::fire('menu.item.sync',$Listing);
         Event::fire('listing.updated',$Listing);

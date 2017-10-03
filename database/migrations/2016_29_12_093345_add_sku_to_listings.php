@@ -26,7 +26,7 @@ class AddSkuToListings extends Migration
     public function down()
     {
         Schema::table('listings', function (Blueprint $table) {
-            $table->dropColumn('username');
+            $table->dropColumn('sku');
         });
     }
 }
