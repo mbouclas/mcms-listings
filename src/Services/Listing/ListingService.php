@@ -101,7 +101,7 @@ class ListingService
         }
         $Listing = $this->fixTags($listing, $Listing);
         if (isset($listing['extra_fields'])){
-            $Listing->extraFieldValues()->sync($Listing->sortOutExtraFields($Listing['extra_fields']));
+            $Listing->extraFieldValues()->sync($Listing->sortOutExtraFields($listing['extra_fields']));
         }
 
         //emit an event so that some other bit of the app might catch it
