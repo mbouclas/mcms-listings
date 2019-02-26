@@ -10,4 +10,9 @@ Route::group(['prefix' => 'admin/api'], function () {
         $router->resource('listingCategory' ,'Mcms\Listings\Http\Controllers\ListingCategoryController');
     });
 
+    Route::group(['middleware' =>['level:98'], 'prefix' => 'listings'], function($router)
+    {
+        $router->resource('addons' ,'Mcms\Listings\Http\Controllers\ListingAddonController');
+    });
+
 });

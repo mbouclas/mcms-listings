@@ -169,7 +169,9 @@ class Listing extends Model
      */
     public function thumb()
     {
-        return $this->hasOne(Image::class, 'item_id')->where('type', 'thumb');
+        return $this->hasOne(Image::class, 'item_id')
+            ->where('model', __CLASS__)
+            ->where('type', 'thumb');
     }
 
     /**
@@ -180,6 +182,7 @@ class Listing extends Model
     public function images()
     {
         return $this->hasMany(Image::class, 'item_id')
+            ->where('model', __CLASS__)
             ->where('type', 'images')
             ->orderBy('orderBy','ASC');
     }
@@ -204,6 +207,7 @@ class Listing extends Model
     public function galleries()
     {
         return $this->hasMany(Image::class, 'item_id')
+            ->where('model', __CLASS__)
             ->where('type', '!=', 'thumb');
     }
 
@@ -235,6 +239,13 @@ class Listing extends Model
             'item_id',
             'dynamic_table_id')
             ->where('dynamic_tables_items.model', get_class($this))
+            ->withTimestamps();
+    }
+
+    public function addons()
+    {
+        return $this->belongsToMany(ListingAddon::class, 'listing_addons_values', 'item_id', 'listing_addon_id')
+            ->withPivot(['field_values', 'price_override', 'activated_at', 'expires_at'])
             ->withTimestamps();
     }
 

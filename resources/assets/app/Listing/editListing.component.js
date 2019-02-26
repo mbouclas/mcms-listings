@@ -7,7 +7,8 @@
         'core.services', 'configuration', 'AuthService', 'LangService',
         'ListingCategoryService',  'LISTINGS_CONFIG', 'ItemSelectorService', 'lodashFactory',
         'mcms.settingsManagerService', 'SeoService', 'LayoutManagerService', '$timeout', '$rootScope', '$q',
-        'momentFactory', 'ModuleExtender', 'MediaLibraryService', 'ExtraFieldService', 'DynamicTableService'];
+        'momentFactory', 'ModuleExtender', 'MediaLibraryService', 'ExtraFieldService', 'DynamicTableService',
+        'ListingAddonService'];
 
     function Directive(Config, hotkeys) {
 
@@ -55,7 +56,8 @@
 
     function DirectiveController($scope, Listing, Helpers, Config, ACL, Lang, ListingCategory, ListingsConfig,
                                  ItemSelector, lo, SM, SEO, LMS, $timeout, $rootScope, $q,
-                                 moment, ModuleExtender, MLS, ExtraFieldService, DynamicTableService) {
+                                 moment, ModuleExtender, MLS, ExtraFieldService, DynamicTableService,
+                                 ListingAddonService) {
         var vm = this,
             autoSaveHooks = [],
             Model = '\\Mcms\\Listings\\Models\\Listing';
@@ -71,7 +73,7 @@
         vm.Permissions = ACL.permissions();
         vm.isSu = ACL.role('su');//more efficient check
         vm.isAdmin = ACL.role('admin');//more efficient check
-
+        vm.addons = ListingAddonService.getAddons();
         vm.tabs = [
             {
                 label : 'General',
@@ -80,6 +82,14 @@
                 default : true,
                 id : 'general',
                 order : 1
+            },
+            {
+                label : 'Addons',
+                file : ListingsConfig.templatesDir + 'Listing/Components/tab-addons.html',
+                active : true,
+                default : true,
+                id : 'addons',
+                order : 2
             },
             {
                 label : 'Translations',

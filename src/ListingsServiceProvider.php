@@ -39,6 +39,7 @@ class ListingsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/../config/config.php' => config_path('listings.php'),
             __DIR__ . '/../config/listing_settings.php' => config_path('listing_settings.php'),
+            __DIR__ . '/../config/listing_addons.php' => config_path('listing_addons.php'),
         ], 'config');
 
         $this->publishes([

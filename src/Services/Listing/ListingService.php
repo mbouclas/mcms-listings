@@ -80,6 +80,7 @@ class ListingService
     public function update($id, array $listing)
     {
         $Listing = $this->listing->find($id);
+        dd($listing);
         //link has changed, write it out as a 301
         //create link
         $oldLink = $Listing->generateSlug();
@@ -104,6 +105,9 @@ class ListingService
             $Listing->extraFieldValues()->sync($Listing->sortOutExtraFields($listing['extra_fields']));
         }
 
+        if (isset($listing['addons'])){
+            $Listing->addons()->sync($this->sortOutAddons($listing['addons']));
+        }
         //emit an event so that some other bit of the app might catch it
         Event::fire('menu.item.sync',$Listing);
         Event::fire('listing.updated',$Listing);
@@ -135,6 +139,10 @@ class ListingService
             $Listing->dynamicTables()->attach($dynamicTableService->sync($listing['dynamic_tables']));
         }
 
+        if (isset($listing['addons'])){
+            $Listing->addons()->sync($this->sortOutAddons($listing['addons']));
+        }
+
         $Listing = $this->saveRelated($listing, $Listing);
         $Listing = $this->fixTags($listing, $Listing);
         Event::fire('listing.created',$Listing);
@@ -150,6 +158,11 @@ class ListingService
     public function destroy($id)
     {
         $item = $this->listing->find($id);
+
+        if (! $item) {
+            return false;
+        }
+
         //delete images
         Image::where('model',get_class($this->model))->where('item_id', $id)->delete();
         //delete from menus
@@ -237,6 +250,34 @@ class ListingService
         $stringHelpers = new Strings();
 
         return $stringHelpers->vksprintf(Config::get('listings.items.slug_pattern'), $item);
+    }
+
+    private function sortOutAddons($addons)
+    {
+        if (empty($addons) || count($addons) == 0) {
+            return [];
+        }
+
+        $ids = [];
+
+        foreach ($addons as $addon) {
+            if (is_numeric($addon)) {
+                $ids[] = $addon;
+                continue;
+            }
+
+            if (is_object($addon)) {
+                $ids[] = $addon->id;
+            }
+
+            if (is_array($addon)) {
+                $ids[] = $addon['id'];
+            }
+
+            Event::fire('listing.addon.sorted', $addon);
+        }
+
+        return $ids;
     }
 
 

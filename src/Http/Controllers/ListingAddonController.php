@@ -10,38 +10,24 @@ use Mcms\Core\Services\DynamicTables\DynamicTablesService;
 use Mcms\Core\Services\SettingsManager\SettingsManagerService;
 use Mcms\Listings\Models\Filters\ListingFilters;
 use Mcms\Listings\Models\Listing;
-use Mcms\Listings\Models\ListingAddon;
-use Mcms\Listings\Models\ListingCategory;
-use Mcms\Listings\Services\Listing\ListingService;
 use Illuminate\Http\Request;
 use ItemConnector;
+use Mcms\Listings\Services\ListingAddonService;
 
-class ListingController extends Controller
+class ListingAddonController extends Controller
 {
     protected $listing;
-    protected $listingService;
+    protected $addonService;
 
-    public function __construct(ListingService $listingService)
+    public function __construct()
     {
-        $this->listingService = $listingService;
+        $this->addonService = new ListingAddonService();
     }
 
     public function index(ListingFilters $filters, Request $request)
     {
-
-
-        \DB::listen(function ($query) {
-//            print_r($query->sql);
-//            print_r($query->bindings);
-            // $query->time
-        });
         $limit = ($request->has('limit')) ? (int) $request->input('limit') : 10;
-
-        if (! $request->has('orderBy')) {
-            $request->merge(['orderBy' => 'created_at']);
-        }
-        
-        return $this->listingService->model->with(['categories','images'])
+        return $this->addonService->model
             ->filter($filters)
             ->paginate($limit);
     }
@@ -50,19 +36,19 @@ class ListingController extends Controller
     {
         $data = $request->toArray();
         $data['user_id'] = \Auth::user()->id;
-        return $this->listingService->store($data);
+        return $this->addonService->store($data);
     }
 
 
     public function update(Request $request, $id)
     {
-        return $this->listingService->update($id, $request->toArray());
+        return $this->addonService->update($id, $request->toArray());
     }
 
 
     public function destroy($id)
     {
-        $result = $this->listingService->destroy($id);
+        $result = $this->addonService->destroy($id);
         return ['success' => $result];
     }
 
@@ -75,22 +61,21 @@ class ListingController extends Controller
 //            print_r($query->bindings);
             // $query->time
         });
-        $filters->request->merge(['model' => str_replace('\\','\\\\',get_class($this->listingService->model))]);
-        $dynamicTableService = new DynamicTablesService(new $this->listingService->model->dynamicTablesModel);
+        $filters->request->merge(['model' => str_replace('\\','\\\\',get_class($this->addonService->model))]);
+        $dynamicTableService = new DynamicTablesService(new $this->addonService->model->dynamicTablesModel);
 
         return [
-            'item' => $this->listingService->findOne($id, ['related', 'categories', 'dynamicTables',
-                'galleries','tagged','files', 'extraFields', 'extraFields.field', 'addons']),
+            'item' => $this->addonService->findOne($id, ['related', 'categories', 'dynamicTables',
+                'galleries','tagged','files', 'extraFields', 'extraFields.field']),
             'imageCategories' => $imageCategories,
             'extraFields' => $extraFieldService->model->filter($filters)->get(),
             'imageCopies' => Config::get('listings.items.images'),
             'config' => array_merge(Config::get('listings.items'), Config::get('listings.money')),
-            'tags' => $this->listingService->model->existingTags(),
+            'tags' => $this->addonService->model->existingTags(),
             'dynamicTables' => $dynamicTableService->all(),
             'settings' => SettingsManagerService::get('listings'),
             'connectors' => ItemConnector::connectors(),
-            'seoFields' => Config::get('seo'),
-            'addons' => ListingAddon::all()
+            'seoFields' => Config::get('seo')
         ];
     }
 

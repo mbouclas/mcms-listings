@@ -15,10 +15,10 @@ use Mcms\Core\QueryFilters\FilterableLimit;
 use Mcms\Core\QueryFilters\FilterableOrderBy;
 use Mcms\Core\QueryFilters\FilterableTagged;
 use Mcms\Core\QueryFilters\QueryFilters;
-use Mcms\Listings\Models\Listing;
 
 
-class ListingFilters extends QueryFilters
+
+class AddonFilters extends QueryFilters
 {
     /**
      * @var array
@@ -28,20 +28,12 @@ class ListingFilters extends QueryFilters
         'title',
         'slug',
         'description',
-        'description_long',
-        'userId',
-        'ownerId',
         'active',
         'dateStart',
         'dateEnd',
-        'category_id',
         'orderBy',
-        'extraFields',
         'minPricce',
         'maxPrice',
-        'q',
-        'dt',
-        'tag'
     ];
 
     use FilterableDate, FilterableOrderBy, FilterableLimit, FilterableExtraFields, DynamicTableFilters, FilterableTagged;
@@ -94,38 +86,6 @@ class ListingFilters extends QueryFilters
         return $this->builder->whereIn('active', $active);
     }
 
-    /**
-     * @example ?userId =1,10
-     * @param null|string $user_id
-     * @return mixed
-     */
-    public function userId($user_id = null)
-    {
-        if ( ! isset($user_id)){
-            return $this->builder;
-        }
-
-        //In case ?status=user_id,inuser_id
-        if (! is_array($user_id)) {
-            $user_id = $user_id = explode(',',$user_id);
-        }
-
-        return $this->builder->whereIn('user_id', $user_id);
-    }
-
-    public function ownerId($owner_id = null)
-    {
-        if ( ! isset($owner_id)){
-            return $this->builder;
-        }
-
-        //In case ?status=owner_id,inowner_id
-        if (! is_array($owner_id)) {
-            $owner_id = $owner_id = explode(',',$owner_id);
-        }
-
-        return $this->builder->whereIn('owner_id', $owner_id);
-    }
 
 
     /**
@@ -167,40 +127,6 @@ class ListingFilters extends QueryFilters
         return $this->builder->whereRaw((\DB::raw("LOWER(`description`->'$.\"{$locale}\"') LIKE '%{$description}%'")));
     }
 
-    /**
-     * @param null|string $description_long
-     * @return $this
-     */
-    public function description_long($description_long = null)
-    {
-        $locale = App::getLocale();
-        if ( ! $description_long){
-            return $this->builder;
-        }
-
-        $description_long = mb_strtolower($description_long);
-        return $this->builder->whereRaw((\DB::raw("LOWER(`description_long`->'$.\"{$locale}\"') LIKE '%{$description_long}%'")));
-
-    }
-
-    /**
-     * @param null|string $category_id
-     * @return $this
-     */
-    public function category_id($category_id = null)
-    {
-        if ( ! $category_id){
-            return $this->builder;
-        }
-
-        if (! is_array($category_id)) {
-            $category_id = $category_id = explode(',',$category_id);
-        }
-
-        return $this->builder->whereHas('categories', function ($q) use ($category_id){
-            $q->whereIn('listing_category_id', $category_id);
-        });
-    }
 
     public function minPrice($minPrice = null)
     {
@@ -218,22 +144,6 @@ class ListingFilters extends QueryFilters
         }
 
         return $this->builder->where('price', '>=', (int) $maxPrice);
-    }
-
-    public function q($q = null)
-    {
-        if ( ! $q){
-            return $this->builder;
-        }
-
-        $locale = App::getLocale();
-
-        return $this->builder->where(function($query) use ($q, $locale) {
-            $q = mb_strtolower($q);
-            $query->orWhereRaw(\DB::raw("LOWER(`title`->'$.\"{$locale}\"') LIKE '%{$q}%'"));
-            $query->orWhereRaw(\DB::raw("LOWER(`description`->'$.\"{$locale}\"') LIKE '%{$q}%'"));
-            $query->orWhereRaw(\DB::raw("LOWER(`description_long`->'$.\"{$locale}\"') LIKE '%{$q}%'"));
-        });
     }
 
 

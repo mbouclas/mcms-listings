@@ -20,6 +20,7 @@ class CreateListingsTable extends Migration
             $table->integer('price')->unsigned();
             $table->string('slug');
             $table->integer('user_id')->unsigned();
+            $table->integer('owner_id')->unsigned();
             $table->boolean('active');
             $table->text('settings')->nullable();
             $table->text('thumb')->nullable();

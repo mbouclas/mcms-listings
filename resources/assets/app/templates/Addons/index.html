@@ -2,7 +2,7 @@
 
     <md-toolbar class="md-table-toolbar md-default">
         <div class="md-toolbar-tools">
-            <h2 class="md-title">{{ VM.Pagination.total }} Listings</h2>
+            <h2 class="md-title">{{ VM.Pagination.total }} Addons</h2>
             <div flex=""></div>
             <md-button class="md-icon-button" ng-click="VM.toggleFilters()">
                 <md-icon class="material-icons">filter_list</md-icon>
@@ -66,89 +66,3 @@
             md-on-paginate="VM.changePage">
     </paginator>
 </md-card>
-
-<md-sidenav class="md-sidenav-right md-whiteframe-4dp" md-component-id="filters">
-
-    <md-toolbar class="md-theme-light">
-        <div class="md-toolbar-tools">
-            <h2 class="md-title" class="md-toolbar-tools">Filter</h2>
-            <div flex></div>
-            <md-button class="md-icon-button" ng-click="VM.resetFilters()">
-                <md-icon class="material-icons">clear</md-icon>
-                <md-tooltip md-direction="top">
-                    Reset filters
-                </md-tooltip>
-            </md-button>
-        </div>
-    </md-toolbar>
-    <md-content layout-padding="">
-        <form method="post" novalidate ng-submit="VM.applyFilters()">
-            <md-input-container class="md-block">
-                <label for="id">#ID</label>
-                <input type="text" id="id" ng-model="VM.filters.id" md-autofocus="">
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label for="key">Title</label>
-                <input type="text" id="key" ng-model="VM.filters.title">
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label for="key">Permalink</label>
-                <input type="text" id="slug" ng-model="VM.filters.slug">
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label>Description</label>
-                <input type="text" ng-model="VM.filters.description">
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label>#OwnerID</label>
-                <user-selector ng-model="VM.filters.ownerId" show-current-user="true"></user-selector>
-            </md-input-container>
-
-
-
-            <md-input-container class="md-block">
-                <label>Status</label>
-                <md-select ng-model="VM.filters.active">
-                    <md-option ng-repeat="state in VM.boolValues" value="{{state.value}}">
-                        {{state.label}}
-                    </md-option>
-                </md-select>
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label>Date mode</label>
-                <md-select ng-model="VM.filters.dateMode">
-                    <md-option value="created_at">Created</md-option>
-                    <md-option value="update_at">Updated</md-option>
-                </md-select>
-            </md-input-container>
-
-            <md-input-container class="md-block">
-                <label>Category</label>
-                <md-select ng-model="VM.filters.category_id" aria-label="Category">
-                    <md-option value="">
-                        Any
-                    </md-option>
-                    <md-option ng-repeat="category in VM.Categories" value="{{category.id}}">
-                        <span ng-bind-html="category.label"></span>
-                    </md-option>
-                </md-select>
-            </md-input-container>
-
-            <md-datepicker ng-model="VM.filters.dateStart"
-                           md-placeholder="From date"></md-datepicker>
-
-            <md-datepicker ng-model="VM.filters.dateEnd"
-                           md-placeholder="To date"></md-datepicker>
-
-            <md-button type="submit" class="md-primary md-raised">
-                Filter
-            </md-button>
-        </form>
-    </md-content>
-
-</md-sidenav>

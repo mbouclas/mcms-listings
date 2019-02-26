@@ -1,25 +1,25 @@
 (function () {
     'use strict';
 
-    angular.module('mcms.listings.listing')
-        .service('ListingService',Service);
+    angular.module('mcms.listings.addons')
+        .service('ListingAddonService',Service);
 
-    Service.$inject = ['ListingDataService', 'LangService', 'lodashFactory', 'mediaFileService',
-        '$q', 'ListingCategoryService', 'ItemSelectorService', 'mcms.settingsManagerService',
-        'SeoService', 'TagsService', '$location', 'LISTINGS_CONFIG', 'core.services', 'ExtraFieldService', '' +
-        'DynamicTableService', 'ListingAddonService'];
+    Service.$inject = ['ListingAddonDataService', 'LangService', 'lodashFactory',
+        '$q', 'ItemSelectorService', 'mcms.settingsManagerService', '$location',
+        'core.services'];
 
-    function Service(DS, Lang, lo, MediaFiles, $q, ListingCategoryService, ItemSelector,
-                     SM, SEO, Tags, $location, Config, Helpers, ExtraFieldService, DynamicTableService,
-                     ListingAddonService) {
+    function Service(DS, Lang, lo, $q, ItemSelector,
+                     SM, $location, Helpers) {
         var _this = this,
             Filters = {},
             ExtraFields = [],
-            Listings = [],
+            Addons = [],
             ImageSettings = {},
             ImageCopies = [];
 
         this.get = get;
+        this.setAddons = setAddons;
+        this.getAddons = getAddons;
         this.init = init;
         this.find = find;
         this.newListing = newListing;
@@ -33,25 +33,32 @@
         this.imageSettings = imageSettings;
 
         function init(filters) {
-
             Filters = Helpers.parseLocation(availableFilters(), $location.search());
+
             if (lo.isObject(filters)){
                 Filters = angular.extend(filters, Filters);
             }
 
             var tasks = [
-                get(Filters),
-                categories()
+                get(Filters)
             ];
 
             return $q.all(tasks);
         }
 
+        function setAddons(addons) {
+            Addons = addons;
+        }
+
+        function getAddons() {
+            return Addons;
+        }
+
         function get(filters) {
             return DS.index(filters)
                 .then(function (response) {
-                    Listings = response;
-                    return Listings;
+                    Addons = response;
+                    return Addons;
                 });
         }
 
@@ -74,7 +81,6 @@
                     Tags.set(response.tags);
                     ExtraFields = ExtraFieldService.convertFieldsFromMysql(response.extraFields);
                     DynamicTableService.tables('listings', response.dynamicTables);
-                    ListingAddonService.setAddons(response.addons);
                     return formatListingAccessor(response.item) || newListing();
                 });
         }
@@ -123,10 +129,7 @@
                 id : null,
                 title: null,
                 description: null,
-                description_long: null,
                 active: null,
-                userId: null,
-                ownerId: null,
                 dateStart: null,
                 dateEnd: null,
                 category_id: null,
@@ -134,7 +137,6 @@
                 dateMode: 'created_at',
                 orderBy : 'created_at',
                 way : 'DESC',
-                listing: 1,
                 limit :  10
             };
         }

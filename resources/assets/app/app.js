@@ -8,6 +8,7 @@
         'mcms.listings.listing',
         'mcms.listings.listingCategory',
         'mcms.listings.extraFields',
+        'mcms.listings.addons',
         'ngFileUpload'
     ])
         .run(run);
@@ -59,6 +60,13 @@
                 permalink: '/dynamicTables/listings',
                 icon: 'assignment',
                 order : 4
+            }),
+            Menu.newItem({
+                id: 'listing-addons',
+                title: 'Addons',
+                permalink: '/listings/addons',
+                icon: 'add_to_queue',
+                order : 5
             })
         ]);
     }
@@ -69,3 +77,4 @@ require('./config');
 require('./Listing');
 require('./ListingCategory');
 require('./ExtraFields');
+require('./Addons');
