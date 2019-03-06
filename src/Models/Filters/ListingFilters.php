@@ -41,7 +41,8 @@ class ListingFilters extends QueryFilters
         'maxPrice',
         'q',
         'dt',
-        'tag'
+        'tag',
+        'sku'
     ];
 
     use FilterableDate, FilterableOrderBy, FilterableLimit, FilterableExtraFields, DynamicTableFilters, FilterableTagged;
@@ -150,6 +151,15 @@ class ListingFilters extends QueryFilters
         }
 
         return $this->builder->where("slug", 'LIKE', "%{$slug}%");
+    }
+
+    public function sku($sku = null)
+    {
+        if ( ! $sku){
+            return $this->builder;
+        }
+
+        return $this->builder->where("sku", 'LIKE', "%{$sku}%");
     }
 
     /**
