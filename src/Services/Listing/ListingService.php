@@ -109,8 +109,8 @@ class ListingService
             $Listing->addons()->sync($this->sortOutAddons($listing['addons']));
         }
         //emit an event so that some other bit of the app might catch it
-        Event::fire('menu.item.sync',$Listing);
-        Event::fire('listing.updated',$Listing);
+        event('menu.item.sync',$Listing);
+        event('listing.updated',$Listing);
 
         return $Listing;
     }
@@ -145,7 +145,7 @@ class ListingService
 
         $Listing = $this->saveRelated($listing, $Listing);
         $Listing = $this->fixTags($listing, $Listing);
-        Event::fire('listing.created',$Listing);
+        event('listing.created',$Listing);
         return $Listing;
     }
 
@@ -172,8 +172,8 @@ class ListingService
         //delete from related
         Related::where('model',get_class($this->model))->where('source_item_id', $id)->orWhere('item_id', $id)->delete();
         //emit an event so that some other bit of the app might catch it
-        Event::fire('menu.item.destroy',$item);
-        Event::fire('listing.destroyed',$item);
+        event('menu.item.destroy',$item);
+        event('listing.destroyed',$item);
 
         return $item->delete();
     }
@@ -274,7 +274,7 @@ class ListingService
                 $ids[] = $addon['id'];
             }
 
-            Event::fire('listing.addon.sorted', $addon);
+            event('listing.addon.sorted', $addon);
         }
 
         return $ids;

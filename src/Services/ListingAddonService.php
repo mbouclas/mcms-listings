@@ -38,7 +38,7 @@ class ListingAddonService
 
         $Addon = $this->model->create($addon);
 
-        Event::fire('listing.addon.created',$Addon);
+        event('listing.addon.created',$Addon);
 
         return $Addon;
     }
@@ -49,7 +49,7 @@ class ListingAddonService
 
         $Addon->update($addon);
 
-        Event::fire('listing.addon.updated',$Addon);
+        event('listing.addon.updated',$Addon);
 
         return $Addon;
     }
@@ -61,7 +61,7 @@ class ListingAddonService
             return false;
         }
 
-        Event::fire('listing.addon.destroyed',$Addon);
+        event('listing.addon.destroyed',$Addon);
 
         return $Addon->delete();
     }
