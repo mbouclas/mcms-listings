@@ -19,6 +19,7 @@ use Mcms\Listings\Exceptions\InvalidListingFormatException;
 use Mcms\Listings\Models\Featured;
 use Mcms\Listings\Models\Listing;
 use Mcms\Listings\Models\Related;
+use Str;
 
 /**
  * Class ListingService
@@ -215,7 +216,7 @@ class ListingService
 
     private function setSlug($item){
         if ( ! isset($item['slug']) || ! $item['slug']){
-            return str_slug($item['title'][App::getLocale()]);
+            return Str::slug($item['title'][App::getLocale()]);
         }
 
         return $item['slug'];

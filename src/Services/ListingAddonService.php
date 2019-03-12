@@ -4,6 +4,7 @@ namespace Mcms\Listings\Services;
 use App;
 use Event;
 use Mcms\Listings\Models\ListingAddon;
+use Str;
 
 class ListingAddonService
 {
@@ -68,7 +69,7 @@ class ListingAddonService
 
     private function setSlug($item){
         if ( ! isset($item['slug']) || ! $item['slug']){
-            return str_slug($item['title'][App::getLocale()]);
+            return Str::slug($item['title'][App::getLocale()]);
         }
 
         return $item['slug'];
