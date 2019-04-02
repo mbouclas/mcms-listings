@@ -179,18 +179,28 @@ class ListingService
         return $item->delete();
     }
 
-    public function findOne($id, array $with = [])
+    public function findOne($id, array $with = [], array $options = [
+        'where' => []
+    ])
     {
 
         $item = $this->model
-            ->with($with)
-            ->find($id);
+            ->with($with);
+
+        if (count($options['where']) > 0) {
+            foreach ($options['where'] as $key => $value) {
+                $item = $item->where($key, $value);
+            }
+        }
+
+        $item = $item->find($id);
 
         if ($item){
             $item = $item->relatedItems();
+            $item->related = collect($item->related);
         }
 
-        if (isset($item->galleries)){
+        if (in_array('galleries', $with)){
             $item->images = $this->imageGrouping
                 ->group($item->galleries, \Config::get('listings.items.images.types'));
         }
